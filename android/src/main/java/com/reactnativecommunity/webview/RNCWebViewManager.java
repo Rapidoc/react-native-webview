@@ -709,6 +709,18 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
     if (mAllowsFullscreenVideo) {
       int initialRequestedOrientation = reactContext.getCurrentActivity().getRequestedOrientation();
       mWebChromeClient = new RNCWebChromeClient(reactContext, webView) {
+
+        @Override
+        public void onPermissionRequest(PermissionRequest request) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+              String[] PERMISSIONS = {
+                PermissionRequest.RESOURCE_AUDIO_CAPTURE,
+                PermissionRequest.RESOURCE_VIDEO_CAPTURE
+              };
+              request.grant(PERMISSIONS);
+            }
+        }
+
         @Override
         public Bitmap getDefaultVideoPoster() {
           return Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888);
@@ -798,9 +810,21 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
         public Bitmap getDefaultVideoPoster() {
           return Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888);
         }
+
+        @Override
+        public void onPermissionRequest(PermissionRequest request) {
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            String[] PERMISSIONS = {
+              PermissionRequest.RESOURCE_AUDIO_CAPTURE,
+              PermissionRequest.RESOURCE_VIDEO_CAPTURE
+            };
+            request.grant(PERMISSIONS);
+          }
+        }
       };
       webView.setWebChromeClient(mWebChromeClient);
     }
+    webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
   }
 
   protected static class RNCWebViewClient extends WebViewClient {
